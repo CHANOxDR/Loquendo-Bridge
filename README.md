@@ -1,4 +1,4 @@
-# LoquendoBridge
+# Loquendo Bridge
 
 Puente ligero para Windows que permite utilizar voces clásicas de **Loquendo TTS 7** con **Streamer.bot**, **OBS Studio** y opcionalmente **VB-CABLE**.
 
