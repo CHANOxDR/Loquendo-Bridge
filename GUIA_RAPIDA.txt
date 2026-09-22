@@ -1,0 +1,203 @@
+LOQUENDO BRIDGE - GUIA RAPIDA
+=============================
+
+IMPORTANTE
+----------
+Este proyecto NO incluye Loquendo TTS, sus voces, DLL, instaladores ni
+TTSFileGenerator.exe. Debes tener tu propia instalación de Loquendo TTS 7.
+
+1. VB-CABLE / AUDIO VIRTUAL
+---------------------------
+LoquendoBridge viene configurado para buscar una salida de audio cuyo nombre
+contenga:
+
+    CABLE Input
+
+Esto está pensado para VB-CABLE de VB-Audio.
+Página oficial:
+    https://vb-audio.com/Cable/
+
+Flujo recomendado:
+
+    LoquendoBridge
+        -> CABLE Input (VB-Audio Virtual Cable)
+        -> CABLE Output (VB-Audio Virtual Cable)
+        -> OBS
+
+En OBS:
+1) Fuentes -> + -> Captura de entrada de audio.
+2) Nombre: Loquendo TTS.
+3) Dispositivo: CABLE Output (VB-Audio Virtual Cable).
+4) Si también quieres escucharlo tú:
+   Mezclador -> Propiedades avanzadas de audio -> Loquendo TTS ->
+   Monitorizar y emitir.
+
+Si NO quieres usar VB-CABLE
+---------------------------
+Tienes tres opciones:
+
+A) Ejecutar el programa con:
+
+    --device default
+
+Ejemplo:
+
+    LoquendoBridge.exe --voice Jorge --device default --text "Hola"
+
+B) En Streamer.bot, cambia:
+
+    --device "CABLE Input"
+
+por:
+
+    --device default
+
+C) Editar src\LoquendoBridge\Program.cs y cambiar:
+
+    private const string DefaultOutputDevice = "CABLE Input";
+
+por:
+
+    private const string DefaultOutputDevice = "default";
+
+Luego vuelve a compilar.
+
+Puedes ver tus dispositivos disponibles con:
+
+    LoquendoBridge.exe --list-devices
+
+
+2. COMPILAR LOQUENDOBRIDGE
+--------------------------
+Requisitos:
+- Windows 10/11
+- Visual Studio
+- .NET Framework 4.8
+- NAudio 2.4.0 (NuGet lo restaura automáticamente)
+
+1) Abre LoquendoBridge.sln.
+2) Selecciona Release.
+3) Plataforma x86.
+4) Compilar -> Compilar solución.
+
+
+3. PROBAR EL PROGRAMA
+---------------------
+Ejemplo con VB-CABLE:
+
+    LoquendoBridge.exe --voice Jorge --device "CABLE Input" --text "Hola mundo"
+
+Sin VB-CABLE:
+
+    LoquendoBridge.exe --voice Jorge --device default --text "Hola mundo"
+
+Voces configuradas:
+- Jorge
+- Carlos
+- Carmen
+- Diego
+- Esperanza
+- Francisca
+- Leonor
+- Ludoviko
+- Soledad
+
+Para listarlas:
+
+    LoquendoBridge.exe --list-voices
+
+
+4. CREAR RECOMPENSA EN TWITCH / STREAMER.BOT
+---------------------------------------------
+A) Crea una recompensa de puntos de canal de Twitch, por ejemplo:
+
+    Loquendo Jorge
+
+Activa la opción para que el espectador tenga que escribir un mensaje.
+
+B) En Streamer.bot:
+1) Ve a Actions.
+2) Crea una Action, por ejemplo:
+
+       TTS Loquendo Jorge
+
+3) Añade Trigger:
+
+       Twitch -> Channel Reward -> Reward Redemption
+
+4) Selecciona la recompensa "Loquendo Jorge".
+5) Añade Sub-Action:
+
+       Core -> C# -> Execute C# Code
+
+6) Abre el archivo:
+
+       StreamerBot\UniversalTTS.cs
+
+   y copia su contenido dentro de Execute C# Code.
+
+7) Modifica esta ruta para que apunte a tu EXE compilado:
+
+       string exePath = @"C:\LoquendoBridge\LoquendoBridge.exe";
+
+8) Para cambiar la voz, modifica:
+
+       string voice = "Jorge";
+
+   Por ejemplo:
+
+       string voice = "Carmen";
+
+9) Pulsa Compile y luego Save and Compile.
+
+10) Prueba la recompensa.
+
+NOTA SOBRE RAWINPUT
+-------------------
+El código usa el argumento "rawInput" de Streamer.bot, que contiene el texto
+escrito por el espectador al canjear la recompensa.
+
+El texto se convierte a Base64 antes de mandarlo al EXE para evitar problemas
+con caracteres como:
+
+    &  |  <  >  "  ^
+
+
+5. VARIAS VOCES
+---------------
+Puedes crear una recompensa y Action diferente para cada voz.
+Solo cambia:
+
+    string voice = "Jorge";
+
+por la voz deseada.
+
+Ejemplos:
+
+    string voice = "Carlos";
+    string voice = "Carmen";
+    string voice = "Soledad";
+
+El EXE usa un mutex global para que los mensajes esperen turno y no hablen
+encima unos de otros.
+
+
+6. RUTA DE LOQUENDO
+-------------------
+Por defecto el proyecto busca:
+
+    C:\Program Files (x86)\Loquendo\LTTS7\bin\TTSFileGenerator.exe
+
+Si tu Loquendo está en otra ruta, puedes usar:
+
+    --generator "C:\TU\RUTA\TTSFileGenerator.exe"
+
+O definir la variable de entorno:
+
+    LOQUENDO_TTS_GENERATOR
+
+
+7. RECORDATORIO LEGAL
+---------------------
+LoquendoBridge es un puente independiente. No distribuyas dentro de este
+proyecto voces, DLL, instaladores ni otros archivos propietarios de Loquendo.
